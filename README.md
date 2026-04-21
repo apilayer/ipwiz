@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IPWiz
+
+IPWiz is an educational developer tool and live dashboard for the [IPstack](https://ipstack.com/) API, powered by APILayer. It allows you to inspect IP addresses, compare IP geolocation with browser geolocation, and see exactly how the IPstack API resolves an address in real-time.
+
+![IPWiz Dashboard Preview](./public/apilayer-logo.png) <!-- Assuming a screenshot might be added later, otherwise we keep the simple logo -->
+
+## Features
+
+- **Live IP Lookup**: See detailed IP information including location, connection details, timezone, and security data.
+- **Trace Panel**: Inspect the exact request and JSON response from the IPstack API with a developer-friendly collapsible view.
+- **Geo Compare**: Compare the geographical location from your IP address with your actual browser's geolocation using an interactive dark-themed Leaflet map.
+- **VPN / Proxy Detection**: Built-in verdict display showing whether the IP is likely associated with a VPN, proxy, or data center.
+- **My Grabs**: Persist and view earlier IP lookups using a local SQLite database (via Drizzle ORM).
+- **Dark & Light Themes**: Automatic or manual toggling between dark and light modes.
+
+## Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router, React 19)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Database**: [SQLite](https://sqlite.org/) + [Drizzle ORM](https://orm.drizzle.team/) + [@libsql/client](https://github.com/libsql/libsql-client-ts)
+- **Maps**: [Leaflet](https://leafletjs.com/) with CartoDB Dark Matter tiles
+- **API**: [IPstack API by APILayer](https://apilayer.com/marketplace/ipstack-api)
 
 ## Getting Started
 
-First, run the development server:
+First, make sure you have an IPstack API key. Create an `.env.local` file at the root of the project with your API key:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+IPSTACK_ACCESS_KEY=your_api_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, install the dependencies and run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application running.
+
+## Local Database Setup
+
+The project uses Drizzle ORM. Remember to generate and run migrations if you change the schema `app/lib/db/schema.ts`!
+
+For setting up the local db initially:
+
+```bash
+npx drizzle-kit migrate
+# or use drizzle studio to view data
+npx drizzle-kit studio
+```
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+- [IPstack API Documentation](https://docs.apilayer.com/ipstack/docs/api-documentation) - Learn about the IPstack API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is intended as an educational devtool. Note that the data used within the app is © IPstack by APILayer.
