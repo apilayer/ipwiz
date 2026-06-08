@@ -53,7 +53,3 @@ npx drizzle-kit studio
 ## Learn More
 
 - [IPstack API Documentation](https://docs.apilayer.com/ipstack/docs/api-documentation) - Learn about the IPstack API
-
-## License
-
-This project is intended as an educational devtool. Note that the data used within the app is © IPstack by APILayer.

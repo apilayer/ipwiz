@@ -51,7 +51,7 @@ export default async function GrabsPage() {
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border bg-bg-elev p-8 text-center text-sm text-fg-muted">
             No grabs yet. Create one from the main dashboard with{" "}
-            <span className="mono text-fg">Grab Link</span>.
+            <span className="mono text-fg">Grab IPinfo</span>.
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-bg-elev">

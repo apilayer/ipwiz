@@ -12,7 +12,7 @@ export function TracePanel({
   loading: boolean;
   error: string | null;
 }) {
-  const [tab, setTab] = useState<"request" | "details" | "json">("request");
+  const [tab, setTab] = useState<"request" | "details" | "json">("details");
 
   const statusColor = result
     ? result.response.status >= 400
@@ -21,11 +21,11 @@ export function TracePanel({
     : "text-fg-dim";
 
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-bg-elev">
+    <section className="flex h-full min-w-0 flex-col rounded-xl border border-border bg-bg-elev max-h-[calc(100vh-7rem)] md:max-h-none">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
-            live trace
+            IP Information
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs">
@@ -65,7 +65,7 @@ export function TracePanel({
         ))}
       </div>
 
-      <div className="flex-1 overflow-auto p-5 scrollbar-thin">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5 scrollbar-thin">
         {error ? (
           <div className="mono whitespace-pre-wrap text-sm text-danger">
             {error}

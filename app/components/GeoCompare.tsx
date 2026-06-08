@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { IPstackResponse } from "@/app/lib/ipstack";
 import { GeoMap } from "./GeoMap";
+import { ApiBannerCompact } from "./ApiBanner";
 
 type BrowserGeo = {
   latitude: number;
@@ -129,6 +130,10 @@ export function GeoCompare({ data }: { data: IPstackResponse | null }) {
           muted={!geo}
           dotColor="#22c55e"
         />
+      </div>
+
+      <div className="px-5 pb-5">
+        <ApiBannerCompact />
       </div>
       {distance !== null ? (
         <div

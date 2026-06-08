@@ -30,7 +30,6 @@ export function GrabDetail({
   const [clicks, setClicks] = useState<ClickRow[]>(initialClicks);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [flashIds, setFlashIds] = useState<Set<string>>(new Set());
-  const [live, setLive] = useState(true);
   const seenIds = useRef<Set<string>>(new Set(initialClicks.map((c) => c.id)));
   const seenContinued = useRef<Set<string>>(
     new Set(initialClicks.filter((c) => c.continued).map((c) => c.id))
@@ -69,10 +68,9 @@ export function GrabDetail({
   }, [code]);
 
   useEffect(() => {
-    if (!live) return;
     const t = setInterval(poll, POLL_MS);
     return () => clearInterval(t);
-  }, [live, poll]);
+  }, [poll]);
 
   const selected = clicks.find((c) => c.id === selectedId) ?? null;
   const shareUrl = shortUrl ?? `${typeof window !== "undefined" ? window.location.origin : ""}/g/${code}`;
@@ -97,20 +95,9 @@ export function GrabDetail({
                 {clicks.length} captured
               </span>
             </div>
-            <label className="mono flex items-center gap-2 text-[11px] text-fg-muted">
-              <span
-                className={`inline-block h-1.5 w-1.5 rounded-full ${
-                  live ? "bg-accent pulse-dot" : "bg-fg-dim"
-                }`}
-              />
-              <input
-                type="checkbox"
-                checked={live}
-                onChange={(e) => setLive(e.target.checked)}
-                className="h-3 w-3 accent-[color:var(--accent)]"
-              />
-              live
-            </label>
+            <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+              auto-refresh
+            </span>
           </div>
           {clicks.length === 0 ? (
             <div className="p-8 text-center text-sm text-fg-muted">

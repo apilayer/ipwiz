@@ -90,7 +90,7 @@ export function GrabButton() {
         className="mono inline-flex h-10 items-center gap-2 rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25"
       >
         <LinkIcon />
-        grab link
+        grab ipinfo
       </button>
 
       {open ? (

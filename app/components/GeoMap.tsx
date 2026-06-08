@@ -14,11 +14,35 @@ interface GeoMapProps {
   browserGeo: MarkerPoint | null;
 }
 
+const TILE_URL = {
+  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+} as const;
+
+function currentTheme(): "dark" | "light" {
+  if (typeof document === "undefined") return "dark";
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
 export function GeoMap({ ipGeo, browserGeo }: GeoMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const tileRef = useRef<L.TileLayer | null>(null);
   const layersRef = useRef<L.Layer[]>([]);
   const [ready, setReady] = useState(false);
+
+  // Keep map tiles in sync with the app theme toggle (data-theme).
+  useEffect(() => {
+    const target = document.documentElement;
+    const observer = new MutationObserver(() => {
+      tileRef.current?.setUrl(TILE_URL[currentTheme()]);
+    });
+    observer.observe(target, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   // Dynamically import Leaflet (avoid SSR)
   useEffect(() => {
@@ -48,14 +72,11 @@ export function GeoMap({ ipGeo, browserGeo }: GeoMapProps) {
         dragging: true,
       }).setView([5.5, -0.2], 3);
 
-      // Dark-themed tile layer from CartoDB
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        {
-          subdomains: "abcd",
-          maxZoom: 19,
-        }
-      ).addTo(map);
+      // Tile layer from CartoDB, matched to the current theme
+      tileRef.current = L.tileLayer(TILE_URL[currentTheme()], {
+        subdomains: "abcd",
+        maxZoom: 19,
+      }).addTo(map);
 
       // Minimal attribution in bottom-right
       L.control

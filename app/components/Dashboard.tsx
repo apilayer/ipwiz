@@ -8,6 +8,8 @@ import { LookupBar } from "./LookupBar";
 import { TracePanel } from "./TracePanel";
 import { GeoCompare } from "./GeoCompare";
 import { GrabButton } from "./GrabButton";
+import { ApiBanner } from "./ApiBanner";
+import { Footer } from "./Footer";
 
 export function Dashboard() {
   const [result, setResult] = useState<LookupResult | null>(null);
@@ -58,6 +60,8 @@ export function Dashboard() {
         <GrabButton />
       </div>
 
+      <ApiBanner />
+
       <IPCard result={result} loading={loading} />
 
       <LookupBar
@@ -67,18 +71,18 @@ export function Dashboard() {
       />
 
       <div className="grid gap-5 md:grid-cols-[1.1fr_1fr]">
-        <TracePanel result={result} loading={loading} error={error} />
+        {/* Wrapper lets the right column drive the row height; the panel is
+            absolutely positioned on md+ so it fills that height and scrolls
+            internally instead of stretching the row. */}
+        <div className="md:relative">
+          <div className="md:absolute md:inset-0">
+            <TracePanel result={result} loading={loading} error={error} />
+          </div>
+        </div>
         <GeoCompare data={result?.response.body ?? null} />
       </div>
 
-      <footer className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4 text-xs text-fg-dim">
-        <span className="mono">
-          IPWiz
-        </span>
-        <span className="mono">
-          IPWiz © IPstack by APILayer
-        </span>
-      </footer>
+      <Footer />
     </main>
   );
 }

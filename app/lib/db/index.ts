@@ -2,10 +2,23 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 
-const url = process.env.TURSO_DATABASE_URL ?? "file:./ipwiz.db";
+let url = process.env.TURSO_DATABASE_URL ?? "file:./ipwiz.db";
+
+// Ensure valid URL protocol to avoid "The string did not match the expected pattern" errors in edge/serverless environments.
+if (
+  url !== "file:./ipwiz.db" &&
+  !url.startsWith("libsql://") &&
+  !url.startsWith("https://") &&
+  !url.startsWith("http://") &&
+  !url.startsWith("file:")
+) {
+  url = "libsql://" + url;
+}
+
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 const client = createClient({ url, authToken });
 
 export const db = drizzle(client, { schema });
+
 export { schema };

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IPWiz — IP geolocation devtool, powered by IPstack",
+  title: "IPWiz — What is my IP address? IP lookup & geolocation",
   description:
-    "See your IP, location, and VPN status. A live devtool that shows exactly how the IPstack API resolves an address.",
+    "Instantly see your IP address, location, ISP, and VPN/proxy status. Look up any IPv4 or IPv6 address with real-time geolocation, powered by ipstack.",
 };
 
 export default function RootLayout({
@@ -27,6 +27,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>

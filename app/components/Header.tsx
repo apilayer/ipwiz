@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Header() {
@@ -6,24 +7,50 @@ export function Header() {
     <header className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <span className="mono text-sm font-semibold tracking-tight text-fg">
-            IPWiz
-          </span>
+          <Link href="/" className="flex items-center gap-2 text-fg transition hover:opacity-80">
+            <svg
+              viewBox="0 0 32 32"
+              fill="none"
+              className="h-5 w-5"
+              aria-hidden
+            >
+              <rect x="3" y="3" width="26" height="26" rx="7" fill="currentColor" />
+              <path
+                d="M10 12.5 14 16l-4 3.5"
+                stroke="var(--bg)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M16.5 20.5h6"
+                stroke="var(--bg)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="mono text-sm font-semibold tracking-tight">
+              IPWiz
+            </span>
+          </Link>
           <span className="text-xs text-fg-dim">by</span>
-          <Image
-            src="/apilayer-logo.png"
-            alt="APILayer"
-            width={100}
-            height={20}
-            priority
-            className="h-5 w-auto dark:brightness-0 dark:invert"
-          />
+          <a 
+            href="https://apilayer.com/" 
+            target="_blank" 
+            rel="noreferrer noopener"
+            className="flex items-center transition hover:opacity-80"
+          >
+            <Image
+              src="/apilayer-logo.png"
+              alt="APILayer"
+              width={100}
+              height={20}
+              priority
+              className="h-5 w-auto dark:brightness-0 dark:invert"
+            />
+          </a>
         </div>
         <div className="flex items-center gap-4 text-xs text-fg-muted">
-          <span className="hidden items-center gap-2 sm:flex">
-            <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="mono">live</span>
-          </span>
           <a
             href="https://docs.apilayer.com/ipstack/docs/api-documentation"
             target="_blank"

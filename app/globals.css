@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Drive the `dark:` variant off the app's theme toggle (data-theme),
+   not the OS prefers-color-scheme, so logos/banner stay in sync. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root,
 [data-theme="dark"] {
   --bg: #0a0a0b;
