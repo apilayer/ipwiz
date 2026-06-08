@@ -23,7 +23,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
         href: "https://docs.apilayer.com/ipstack/docs/api-documentation",
         external: true,
       },
-      { label: "Pricing", href: "https://ipstack.com/product", external: true },
+      { label: "Pricing", href: "https://ipstack.com/pricing", external: true },
     ],
   },
   {
