@@ -9,6 +9,7 @@ import { TracePanel } from "./TracePanel";
 import { GeoCompare } from "./GeoCompare";
 import { GrabButton } from "./GrabButton";
 import { ApiBanner } from "./ApiBanner";
+import { FaqSection } from "./FaqSection";
 import { Footer } from "./Footer";
 
 export function Dashboard() {
@@ -81,6 +82,8 @@ export function Dashboard() {
         </div>
         <GeoCompare data={result?.response.body ?? null} />
       </div>
+
+      <FaqSection />
 
       <Footer />
     </main>
