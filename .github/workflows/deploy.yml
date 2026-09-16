@@ -1,0 +1,529 @@
+name: Application CI/CD
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # JOB 0: RESOLVE ENVIRONMENT
+  resolve:
+    name: Resolve environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set.outputs.environment }}
+    steps:
+      - name: Determine environment from branch
+        id: set
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "environment=production" >> "${GITHUB_OUTPUT}"
+          else
+            echo "environment=staging" >> "${GITHUB_OUTPUT}"
+          fi
+
+  # JOB 1: PREPARE
+  prepare:
+    name: Prepare deployment
+    runs-on: ubuntu-latest
+    needs: resolve
+    environment: ${{ needs.resolve.outputs.environment }}
+
+    env:
+      APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
+      APP_ROOT: ${{ vars.APP_ROOT }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      ASG_NAME: ${{ vars.ASG_NAME }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      GIT_BRANCH: ${{ vars.GIT_BRANCH }}
+      PM2_APP_NAME: ${{ vars.PM2_APP_NAME }}
+      REPO_URL: ${{ vars.REPO_URL }}
+
+    outputs:
+      instance_ids: ${{ steps.instances.outputs.instance_ids }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check GitHub context
+        run: |
+          echo "========================================"
+          echo "GitHub Context"
+          echo "========================================"
+          echo "Repository: ${GITHUB_REPOSITORY}"
+          echo "Ref: ${GITHUB_REF}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
+          echo "Commit: ${GITHUB_SHA}"
+          echo "Resolved environment: ${{ needs.resolve.outputs.environment }}"
+          echo ""
+          echo "========================================"
+          echo "Application Configuration"
+          echo "========================================"
+          echo "Application: ${APP_DISPLAY_NAME}"
+          echo "Application Root: ${APP_ROOT}"
+          echo "PM2 Application: ${PM2_APP_NAME}"
+          echo "Application Port: ${APP_PORT}"
+          echo "Git Branch: ${GIT_BRANCH}"
+          echo "Repo URL: ${REPO_URL}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Find running EC2 instances
+        id: instances
+        env:
+          ASG_NAME: ${{ vars.ASG_NAME }}
+        run: |
+          echo "========================================"
+          echo "Finding running EC2 instances"
+          echo "========================================"
+          echo "ASG: ${ASG_NAME}"
+
+          INSTANCE_IDS=$(aws ec2 describe-instances \
+            --filters \
+              "Name=tag:aws:autoscaling:groupName,Values=${ASG_NAME}" \
+              "Name=instance-state-name,Values=running" \
+            --query 'Reservations[].Instances[].InstanceId' \
+            --output text)
+
+          if [[ -z "${INSTANCE_IDS}" || "${INSTANCE_IDS}" == "None" ]]; then
+            echo "ERROR: No running EC2 instances found for ASG."
+            exit 1
+          fi
+
+          echo ""
+          echo "Target EC2 instances:"
+          echo "${INSTANCE_IDS}"
+
+          echo ""
+          echo "instance_ids=${INSTANCE_IDS}" >> "${GITHUB_OUTPUT}"
+
+  # JOB 2: DEPLOY
+  deploy:
+    name: Deploy to all instances
+    runs-on: ubuntu-latest
+    needs: [resolve, prepare]
+    environment: ${{ needs.resolve.outputs.environment }}
+
+    env:
+      APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
+      APP_ROOT: ${{ vars.APP_ROOT }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      ASG_NAME: ${{ vars.ASG_NAME }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      GIT_BRANCH: ${{ vars.GIT_BRANCH }}
+      PM2_APP_NAME: ${{ vars.PM2_APP_NAME }}
+      REPO_URL: ${{ vars.REPO_URL }}
+
+    outputs:
+      command_id: ${{ steps.deployment.outputs.command_id }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Start deployment
+        id: deployment
+        env:
+          INSTANCE_IDS: ${{ needs.prepare.outputs.instance_ids }}
+
+        run: |
+          echo "========================================"
+          echo "Starting deployment"
+          echo "========================================"
+          echo "Application: ${APP_DISPLAY_NAME}"
+          echo "Application Root: ${APP_ROOT}"
+          echo "PM2 Application: ${PM2_APP_NAME}"
+          echo "Application Port: ${APP_PORT}"
+          echo "Git Branch: ${GIT_BRANCH}"
+          echo ""
+          echo "Target instances:"
+          echo "${INSTANCE_IDS}"
+
+          DEPLOY_SCRIPT=$(cat <<EOF
+          #!/usr/bin/env bash
+
+          set -u
+
+          APP_DISPLAY_NAME="${APP_DISPLAY_NAME}"
+          APP_ROOT="${APP_ROOT}"
+          APP_PORT="${APP_PORT}"
+          GIT_BRANCH="${GIT_BRANCH}"
+          PM2_APP_NAME="${PM2_APP_NAME}"
+          REPO_URL="${REPO_URL}"
+
+          NODE_MODULES_BACKUP="\${APP_ROOT}/node_modules_backup"
+
+          export HOME="/root"
+          export NVM_DIR="/root/.nvm"
+
+          if [[ ! -f "\${NVM_DIR}/nvm.sh" ]]; then
+            echo "ERROR: NVM was not found at \${NVM_DIR}/nvm.sh"
+            exit 1
+          fi
+
+          source "\${NVM_DIR}/nvm.sh"
+          nvm use 20
+
+          FIRST_DEPLOY=false
+
+          if [[ ! -d "\${APP_ROOT}/.git" ]]; then
+            echo "Application directory not found or not a git repo at \${APP_ROOT}."
+            echo "Cloning \${GIT_BRANCH} from \${REPO_URL}..."
+
+            mkdir -p "\$(dirname "\${APP_ROOT}")"
+            rm -rf "\${APP_ROOT}"
+
+            if ! git clone --branch "\${GIT_BRANCH}" --single-branch "\${REPO_URL}" "\${APP_ROOT}"; then
+              echo "ERROR: git clone failed."
+              exit 1
+            fi
+
+            FIRST_DEPLOY=true
+          fi
+
+          cd "\${APP_ROOT}" || {
+            echo "ERROR: Application directory does not exist:"
+            echo "\${APP_ROOT}"
+            exit 1
+          }
+
+          echo "========================================"
+          echo "Starting \${APP_DISPLAY_NAME} deployment"
+          echo "========================================"
+          echo "Application root: \${APP_ROOT}"
+          echo "Git branch: \${GIT_BRANCH}"
+          echo "PM2 application: \${PM2_APP_NAME}"
+          echo "Application port: \${APP_PORT}"
+          echo "First deploy: \${FIRST_DEPLOY}"
+
+          echo ""
+          echo "Saving current commit..."
+          PREVIOUS_COMMIT=\$(git rev-parse HEAD)
+          echo "Previous commit: \${PREVIOUS_COMMIT}"
+
+          echo ""
+          echo "Backing up node_modules..."
+          NODE_MODULES_BACKUP_CREATED=false
+
+          if [[ -d "\${APP_ROOT}/node_modules" ]]; then
+            echo "Existing node_modules found."
+            rm -rf "\${NODE_MODULES_BACKUP}"
+            mv "\${APP_ROOT}/node_modules" "\${NODE_MODULES_BACKUP}"
+            NODE_MODULES_BACKUP_CREATED=true
+            echo "node_modules backup created."
+          else
+            echo "No existing node_modules found."
+            echo "Skipping node_modules backup."
+          fi
+
+          echo ""
+          echo "Pulling latest \${GIT_BRANCH} code..."
+
+          if ! git pull origin "\${GIT_BRANCH}"; then
+            echo "ERROR: git pull failed."
+            echo "Restoring node_modules..."
+            rm -rf "\${APP_ROOT}/node_modules"
+            if [[ -d "\${NODE_MODULES_BACKUP}" ]]; then
+              mv "\${NODE_MODULES_BACKUP}" "\${APP_ROOT}/node_modules"
+            fi
+            exit 1
+          fi
+
+          CURRENT_COMMIT=\$(git rev-parse HEAD)
+          echo "Current commit: \${CURRENT_COMMIT}"
+
+          ROLLBACK_REQUIRED=false
+
+          echo ""
+          echo "Installing dependencies..."
+
+          if ! npm ci; then
+            echo "ERROR: npm ci failed."
+            ROLLBACK_REQUIRED=true
+          fi
+
+          if [[ "\${ROLLBACK_REQUIRED}" == "false" ]]; then
+            echo ""
+            echo "Starting/reloading PM2..."
+
+            if pm2 describe "\${PM2_APP_NAME}" >/dev/null 2>&1; then
+              echo "PM2 process exists."
+              echo "Reloading \${PM2_APP_NAME}..."
+              if ! pm2 reload "\${PM2_APP_NAME}" --update-env; then
+                echo "ERROR: PM2 reload failed."
+                ROLLBACK_REQUIRED=true
+              fi
+            else
+              echo "PM2 process does not exist."
+              echo "Starting \${PM2_APP_NAME}..."
+              if ! pm2 start npm \
+                --name "\${PM2_APP_NAME}" \
+                --cwd "\${APP_ROOT}" \
+                -- start -- -p "\${APP_PORT}"; then
+                echo "ERROR: PM2 start failed."
+                ROLLBACK_REQUIRED=true
+              fi
+            fi
+
+            if [[ "\${ROLLBACK_REQUIRED}" == "false" ]]; then
+              pm2 save
+            fi
+          fi
+
+          if [[ "\${ROLLBACK_REQUIRED}" == "false" ]]; then
+            echo ""
+            echo "Running health check..."
+            HEALTH_OK=false
+
+            for attempt in {1..30}; do
+              if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}/" > /dev/null; then
+                HEALTH_OK=true
+                break
+              fi
+              echo "Health check attempt \${attempt}/30 failed."
+              sleep 2
+            done
+
+            if [[ "\${HEALTH_OK}" != "true" ]]; then
+              echo "ERROR: Health check failed."
+              ROLLBACK_REQUIRED=true
+            fi
+          fi
+
+          if [[ "\${ROLLBACK_REQUIRED}" == "false" ]]; then
+            echo ""
+            echo "========================================"
+            echo "DEPLOYMENT SUCCESSFUL"
+            echo "========================================"
+            echo "Application: \${APP_DISPLAY_NAME}"
+            echo "Previous commit: \${PREVIOUS_COMMIT}"
+            echo "Current commit: \${CURRENT_COMMIT}"
+            echo ""
+            echo "Keeping node_modules backup for rollback:"
+            echo "\${NODE_MODULES_BACKUP}"
+            exit 0
+          fi
+
+          if [[ "\${FIRST_DEPLOY}" == "true" ]]; then
+            echo ""
+            echo "========================================"
+            echo "DEPLOYMENT FAILED — NO ROLLBACK AVAILABLE"
+            echo "========================================"
+            echo "Application: \${APP_DISPLAY_NAME}"
+            echo "This was a first-time deploy on this instance (fresh clone)."
+            echo "There is no previous working version to roll back to."
+            echo "Manual investigation is required."
+            exit 1
+          fi
+
+          echo ""
+          echo "========================================"
+          echo "ROLLBACK STARTING"
+          echo "========================================"
+          echo "Restoring commit: \${PREVIOUS_COMMIT}"
+
+          echo ""
+          echo "Stopping application..."
+          pm2 stop "\${PM2_APP_NAME}" || true
+
+          echo ""
+          echo "Restoring previous Git commit..."
+          git reset --hard "\${PREVIOUS_COMMIT}"
+
+          echo ""
+          echo "Restoring previous node_modules..."
+          rm -rf "\${APP_ROOT}/node_modules"
+
+          if [[ "\${NODE_MODULES_BACKUP_CREATED}" != "true" ]]; then
+            echo "ERROR: No previous node_modules backup exists."
+            exit 1
+          fi
+
+          if [[ ! -d "\${NODE_MODULES_BACKUP}" ]]; then
+            echo "ERROR: node_modules backup not found."
+            exit 1
+          fi
+
+          mv "\${NODE_MODULES_BACKUP}" "\${APP_ROOT}/node_modules"
+
+          echo ""
+          echo "Reloading previous version..."
+
+          if pm2 describe "\${PM2_APP_NAME}" >/dev/null 2>&1; then
+            if ! pm2 reload "\${PM2_APP_NAME}" --update-env; then
+              echo "ERROR: PM2 rollback reload failed."
+              exit 1
+            fi
+          else
+            echo "PM2 process does not exist."
+            echo "Starting previous version..."
+            if ! pm2 start npm \
+              --name "\${PM2_APP_NAME}" \
+              --cwd "\${APP_ROOT}" \
+              -- start -- -p "\${APP_PORT}"; then
+              echo "ERROR: PM2 rollback start failed."
+              exit 1
+            fi
+          fi
+
+          pm2 save
+
+          echo ""
+          echo "Checking rolled-back application..."
+          ROLLBACK_HEALTH_OK=false
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}/" > /dev/null; then
+              ROLLBACK_HEALTH_OK=true
+              break
+            fi
+            echo "Rollback health check attempt \${attempt}/30 failed."
+            sleep 2
+          done
+
+          if [[ "\${ROLLBACK_HEALTH_OK}" != "true" ]]; then
+            echo ""
+            echo "========================================"
+            echo "ROLLBACK FAILED"
+            echo "========================================"
+            exit 1
+          fi
+
+          echo ""
+          echo "========================================"
+          echo "ROLLBACK SUCCESSFUL"
+          echo "========================================"
+          echo "Application: \${APP_DISPLAY_NAME}"
+          echo "Application restored to: \${PREVIOUS_COMMIT}"
+
+          exit 1
+
+          EOF
+          )
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids ${INSTANCE_IDS} \
+            --document-name "AWS-RunShellScript" \
+            --comment "${APP_DISPLAY_NAME} ${GIT_BRANCH} deployment ${GITHUB_SHA}" \
+            --parameters "$(jq -n \
+              --arg script "${DEPLOY_SCRIPT}" \
+              '{commands: [$script]}')" \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo ""
+          echo "SSM Command ID: ${COMMAND_ID}"
+          echo "command_id=${COMMAND_ID}" >> "${GITHUB_OUTPUT}"
+
+  # JOB 3: VERIFY
+  verify:
+    name: Verify all instances
+    runs-on: ubuntu-latest
+    needs: [resolve, prepare, deploy]
+    environment: ${{ needs.resolve.outputs.environment }}
+
+    env:
+      APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Verify deployment
+        env:
+          INSTANCE_IDS: ${{ needs.prepare.outputs.instance_ids }}
+          COMMAND_ID: ${{ needs.deploy.outputs.command_id }}
+
+        run: |
+          echo "========================================"
+          echo "Waiting for deployment result"
+          echo "========================================"
+          echo "Application: ${APP_DISPLAY_NAME}"
+          echo "Command ID: ${COMMAND_ID}"
+
+          for INSTANCE_ID in ${INSTANCE_IDS}; do
+            echo ""
+            echo "Checking deployment on ${INSTANCE_ID}..."
+            INSTANCE_SUCCESS=false
+
+            for attempt in {1..60}; do
+              STATUS=$(aws ssm get-command-invocation \
+                --command-id "${COMMAND_ID}" \
+                --instance-id "${INSTANCE_ID}" \
+                --query 'Status' \
+                --output text 2>/dev/null || echo "Pending")
+
+              echo "${INSTANCE_ID}: ${STATUS}"
+
+              case "${STATUS}" in
+                Success)
+                  INSTANCE_SUCCESS=true
+                  break
+                  ;;
+                Failed|Cancelled|TimedOut|Cancelling)
+                  echo ""
+                  echo "========================================"
+                  echo "DEPLOYMENT FAILED"
+                  echo "========================================"
+                  echo "Application: ${APP_DISPLAY_NAME}"
+                  echo "Instance: ${INSTANCE_ID}"
+                  echo ""
+                  echo "Deployment output:"
+                  aws ssm get-command-invocation \
+                    --command-id "${COMMAND_ID}" \
+                    --instance-id "${INSTANCE_ID}" \
+                    --query 'StandardOutputContent' \
+                    --output text || true
+                  echo ""
+                  echo "Error output:"
+                  aws ssm get-command-invocation \
+                    --command-id "${COMMAND_ID}" \
+                    --instance-id "${INSTANCE_ID}" \
+                    --query 'StandardErrorContent' \
+                    --output text || true
+                  exit 1
+                  ;;
+              esac
+
+              sleep 5
+            done
+
+            if [[ "${INSTANCE_SUCCESS}" != "true" ]]; then
+              echo ""
+              echo "========================================"
+              echo "DEPLOYMENT TIMED OUT"
+              echo "========================================"
+              echo "Application: ${APP_DISPLAY_NAME}"
+              echo "Instance: ${INSTANCE_ID}"
+              exit 1
+            fi
+
+            echo ""
+            echo "Deployment successful on ${INSTANCE_ID}."
+          done
+
+          echo ""
+          echo "========================================"
+          echo "DEPLOYMENT SUCCESSFUL ON ALL INSTANCES"
+          echo "========================================"
+          echo "Application: ${APP_DISPLAY_NAME}"
+          echo "Branch: ${GIT_BRANCH}"
