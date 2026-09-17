@@ -40,6 +40,7 @@ jobs:
       APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
       APP_ROOT: ${{ vars.APP_ROOT }}
       APP_PORT: ${{ vars.APP_PORT }}
+      APP_BASE_PATH: ${{ vars.APP_BASE_PATH }}
       ASG_NAME: ${{ vars.ASG_NAME }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       GIT_BRANCH: ${{ vars.GIT_BRANCH }}
@@ -71,6 +72,7 @@ jobs:
           echo "Application Root: ${APP_ROOT}"
           echo "PM2 Application: ${PM2_APP_NAME}"
           echo "Application Port: ${APP_PORT}"
+          echo "Application Base Path: ${APP_BASE_PATH}"
           echo "Git Branch: ${GIT_BRANCH}"
           echo "Repo URL: ${REPO_URL}"
 
@@ -120,6 +122,7 @@ jobs:
       APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
       APP_ROOT: ${{ vars.APP_ROOT }}
       APP_PORT: ${{ vars.APP_PORT }}
+      APP_BASE_PATH: ${{ vars.APP_BASE_PATH }}
       ASG_NAME: ${{ vars.ASG_NAME }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       GIT_BRANCH: ${{ vars.GIT_BRANCH }}
@@ -149,6 +152,7 @@ jobs:
           echo "Application Root: ${APP_ROOT}"
           echo "PM2 Application: ${PM2_APP_NAME}"
           echo "Application Port: ${APP_PORT}"
+          echo "Application Base Path: ${APP_BASE_PATH}"
           echo "Git Branch: ${GIT_BRANCH}"
           echo ""
           echo "Target instances:"
@@ -162,6 +166,7 @@ jobs:
           APP_DISPLAY_NAME="${APP_DISPLAY_NAME}"
           APP_ROOT="${APP_ROOT}"
           APP_PORT="${APP_PORT}"
+          APP_BASE_PATH="${APP_BASE_PATH}"
           GIT_BRANCH="${GIT_BRANCH}"
           PM2_APP_NAME="${PM2_APP_NAME}"
           REPO_URL="${REPO_URL}"
@@ -209,6 +214,7 @@ jobs:
           echo "Git branch: \${GIT_BRANCH}"
           echo "PM2 application: \${PM2_APP_NAME}"
           echo "Application port: \${APP_PORT}"
+          echo "Application base path: \${APP_BASE_PATH}"
           echo "First deploy: \${FIRST_DEPLOY}"
 
           echo ""
@@ -291,7 +297,7 @@ jobs:
             HEALTH_OK=false
 
             for attempt in {1..30}; do
-              if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}/" > /dev/null; then
+              if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}\${APP_BASE_PATH}" > /dev/null; then
                 HEALTH_OK=true
                 break
               fi
@@ -388,7 +394,7 @@ jobs:
           ROLLBACK_HEALTH_OK=false
 
           for attempt in {1..30}; do
-            if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}/" > /dev/null; then
+            if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}\${APP_BASE_PATH}" > /dev/null; then
               ROLLBACK_HEALTH_OK=true
               break
             fi
@@ -440,6 +446,7 @@ jobs:
     env:
       APP_DISPLAY_NAME: ${{ vars.APP_DISPLAY_NAME }}
       AWS_REGION: ${{ vars.AWS_REGION }}
+      APP_BASE_PATH: ${{ vars.APP_BASE_PATH }}
 
     steps:
       - name: Configure AWS credentials
