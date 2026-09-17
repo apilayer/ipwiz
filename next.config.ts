@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: '/devtools/ipwiz',
-  assetPrefix: '/devtools/ipwiz',
+  basePath: '/devtools/aerostack',
+  assetPrefix: '/devtools/aerostack',
   images: { unoptimized: true },
 };
+
+export default nextConfig;
