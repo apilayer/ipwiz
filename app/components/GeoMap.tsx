@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Map as LeafletMap, TileLayer, Layer } from "leaflet";
+import type { TileLayer } from "leaflet";
 
 type MarkerPoint = {
   lat: number;
@@ -26,9 +28,9 @@ function currentTheme(): "dark" | "light" {
 
 export function GeoMap({ ipGeo, browserGeo }: GeoMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const tileRef = useRef<L.TileLayer | null>(null);
-  const layersRef = useRef<L.Layer[]>([]);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const tileRef = useRef<TileLayer | null>(null);
+  const layersRef = useRef<Layer[]>([]);
   const [ready, setReady] = useState(false);
 
   // Keep map tiles in sync with the app theme toggle (data-theme).
