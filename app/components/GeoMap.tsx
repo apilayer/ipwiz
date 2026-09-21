@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Map as LeafletMap, TileLayer, Layer } from "leaflet";
-import type { TileLayer } from "leaflet";
 
 type MarkerPoint = {
   lat: number;
