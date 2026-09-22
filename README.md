@@ -5,7 +5,6 @@ IPWiz is an educational developer tool and live dashboard for the [IPstack](http
 ![IPWiz Dashboard Preview](./public/apilayer-logo.png) <!-- Assuming a screenshot might be added later, otherwise we keep the simple logo -->
 
 ## Features
-
 - **Live IP Lookup**: See detailed IP information including location, connection details, timezone, and security data.
 - **Trace Panel**: Inspect the exact request and JSON response from the IPstack API with a developer-friendly collapsible view.
 - **Geo Compare**: Compare the geographical location from your IP address with your actual browser's geolocation using an interactive dark-themed Leaflet map.
