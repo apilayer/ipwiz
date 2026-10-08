@@ -2,6 +2,34 @@
 
 import { useState } from "react";
 import type { LookupResult } from "@/app/lib/ipstack";
+import type { FriendlyError } from "@/app/lib/errors";
+
+function ErrorView({ error }: { error: FriendlyError }) {
+  return (
+    <div className="rounded-lg border border-warn/30 bg-warn/5 p-4">
+      <div className="flex items-start gap-3">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          className="mt-0.5 h-4 w-4 shrink-0 text-warn"
+          aria-hidden
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8v5M12 16.5v.01" />
+        </svg>
+        <div>
+          <p className="text-sm font-semibold text-fg">{error.title}</p>
+          <p className="mt-1 text-sm leading-relaxed text-fg-muted">
+            {error.detail}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function TracePanel({
   result,
@@ -10,41 +38,28 @@ export function TracePanel({
 }: {
   result: LookupResult | null;
   loading: boolean;
-  error: string | null;
+  error: FriendlyError | null;
 }) {
   const [tab, setTab] = useState<"request" | "details" | "json">("details");
-
-  const statusColor = result
-    ? result.response.status >= 400
-      ? "text-danger"
-      : "text-accent"
-    : "text-fg-dim";
 
   return (
     <section className="flex h-full min-w-0 flex-col rounded-xl border border-border bg-bg-elev max-h-[calc(100vh-7rem)] md:max-h-none">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
-          <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+          <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
             IP Information
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs">
           {loading ? (
-            <span className="mono flex items-center gap-1 text-info">
-              <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-info" />
+            <span className="label flex items-center gap-1 text-info">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-info" />
               fetching
             </span>
-          ) : result ? (
-            <>
-              <span className={`mono ${statusColor}`}>
-                {result.response.status}
-              </span>
-              <span className="mono text-fg-dim">
-                {result.response.elapsedMs}ms
-              </span>
-            </>
           ) : error ? (
-            <span className="mono text-danger">error</span>
+            <span className="label text-warn">couldn&rsquo;t load</span>
+          ) : result ? (
+            <span className="label text-ok">ready</span>
           ) : null}
         </div>
       </div>
@@ -54,7 +69,7 @@ export function TracePanel({
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`mono -mb-px border-b-2 py-2 text-xs uppercase tracking-wider transition ${
+            className={`label -mb-px border-b-2 py-2 text-xs uppercase tracking-wider transition ${
               tab === t
                 ? "border-accent text-accent"
                 : "border-transparent text-fg-dim hover:text-fg-muted"
@@ -67,11 +82,9 @@ export function TracePanel({
 
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5 scrollbar-thin">
         {error ? (
-          <div className="mono whitespace-pre-wrap text-sm text-danger">
-            {error}
-          </div>
+          <ErrorView error={error} />
         ) : !result ? (
-          <div className="mono text-sm text-fg-dim">awaiting lookup…</div>
+          <div className="label text-sm text-fg-dim">awaiting lookup…</div>
         ): tab === "details" ? (
           <ResponseView result={result} />
         ) : (
@@ -91,25 +104,25 @@ function RequestView({ result }: { result: LookupResult }) {
     <div className="flex flex-col gap-4">
       <KvRow label="method" value={result.request.method} />
       <div className="flex flex-col gap-1">
-        <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+        <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
           url
         </span>
-        <code className="mono break-all rounded-md border border-border bg-bg-elev-2 px-2 py-1.5 text-xs text-fg">
+        <code className="code break-all rounded-md border border-border bg-bg-elev-2 px-2 py-1.5 text-xs text-fg">
           {result.request.url}
         </code>
       </div>
       <div className="flex flex-col gap-1">
-        <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+        <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
           params
         </span>
         <div className="divide-y divide-border rounded-md border border-border bg-bg-elev-2">
           {params.length === 0 ? (
-            <div className="mono px-3 py-2 text-xs text-fg-dim">—</div>
+            <div className="label px-3 py-2 text-xs text-fg-dim">—</div>
           ) : (
             params.map(([k, v]) => (
               <div
                 key={k}
-                className="mono flex items-center gap-3 px-3 py-1.5 text-xs"
+                className="code flex items-center gap-3 px-3 py-1.5 text-xs"
               >
                 <span className="w-24 shrink-0 text-info">{k}</span>
                 <span className="truncate text-fg">{v}</span>
@@ -120,9 +133,9 @@ function RequestView({ result }: { result: LookupResult }) {
       </div>
       <p className="text-[11px] leading-relaxed text-fg-dim">
         This request is issued from{" "}
-        <span className="mono text-fg-muted">/api/ipstack</span> on your
-        server. The <span className="mono">access_key</span> is read from{" "}
-        <span className="mono">process.env.IPSTACK_ACCESS_KEY</span> and never
+        <span className="code text-fg-muted">/api/ipstack</span> on your
+        server. The <span className="code">access_key</span> is read from{" "}
+        <span className="code">process.env.IPSTACK_ACCESS_KEY</span> and never
         exposed to the browser. The value above is masked for display.
       </p>
     </div>
@@ -249,10 +262,10 @@ function ResponseView({ result }: { result: LookupResult }) {
               <span className="inline-flex h-5 w-5 items-center justify-center rounded text-[11px] text-fg-dim">
                 {group.icon}
               </span>
-              <span className="mono flex-1 uppercase tracking-wider text-fg-muted">
+              <span className="label flex-1 uppercase tracking-wider text-fg-muted">
                 {group.label}
               </span>
-              <span className="mono rounded-full bg-bg-elev px-2 py-0.5 text-[10px] text-fg-dim">
+              <span className="label rounded-full bg-bg-elev px-2 py-0.5 text-[10px] text-fg-dim">
                 {filled}
               </span>
               <span className="text-fg-dim transition-transform group-open:rotate-90">
@@ -266,13 +279,13 @@ function ResponseView({ result }: { result: LookupResult }) {
                 const boolColor =
                   typeof v === "boolean"
                     ? v
-                      ? "text-accent"
+                      ? "text-ok"
                       : "text-danger"
                     : "text-fg";
                 return (
                   <div
                     key={k}
-                    className="mono grid grid-cols-[8rem_1fr] items-start gap-3 px-3 py-1.5 text-xs"
+                    className="grid grid-cols-[8rem_1fr] items-start gap-3 px-3 py-1.5 text-xs"
                   >
                     <span className="text-info">{k}</span>
                     <span className={`break-all ${boolColor}`}>{display}</span>
@@ -290,7 +303,7 @@ function ResponseView({ result }: { result: LookupResult }) {
 function JsonView({ data }: { data: unknown }) {
   const json = JSON.stringify(data, null, 2);
   return (
-    <pre className="mono whitespace-pre-wrap break-words rounded-md border border-border bg-bg-elev-2 p-3 text-xs leading-relaxed text-fg">
+    <pre className="code whitespace-pre-wrap break-words rounded-md border border-border bg-bg-elev-2 p-3 text-xs leading-relaxed text-fg">
       {colorize(json)}
     </pre>
   );
@@ -320,7 +333,7 @@ function colorize(json: string): React.ReactNode {
 
 function KvRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="mono flex items-center gap-3 text-xs">
+    <div className="flex items-center gap-3 text-xs tabular-nums">
       <span className="w-20 shrink-0 uppercase tracking-wider text-fg-dim">
         {label}
       </span>

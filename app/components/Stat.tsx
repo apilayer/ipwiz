@@ -1,12 +1,12 @@
 export function Stat({
   label,
   value,
-  mono = true,
+  code = false,
   hint,
 }: {
   label: string;
   value: React.ReactNode;
-  mono?: boolean;
+  code?: boolean;
   hint?: string;
 }) {
   return (
@@ -15,7 +15,7 @@ export function Stat({
         {label}
       </span>
       <span
-        className={`${mono ? "mono" : ""} truncate text-sm text-fg`}
+        className={`${code ? "code" : ""} truncate text-sm text-fg`}
         title={hint}
       >
         {value ?? <span className="text-fg-dim">—</span>}

@@ -1,35 +1,37 @@
 import type { Metadata, Viewport } from "next";
 import { SITE, SITE_URL } from "./lib/site";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Open_Sans, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 
 /**
- * IBM Plex, not the framework default.
+ * The same pair ipstack.com uses, so this page reads as part of that site
+ * rather than a detour from it: Open Sans for everything, Source Code Pro for
+ * the raw JSON, request URLs and headers. Weight 600 is ipstack's heading
+ * weight; 700 is kept for inline <strong>.
  *
- * This page is mostly monospace: a hundred-odd elements render IP addresses,
- * ASNs, timezones and hex. Plex Mono was drawn for exactly that, and keeps 0/O
- * and 1/l/I distinct, which matters when the whole point of the page is that
- * someone reads an address off it correctly.
+ * The CSS variables are deliberately not named --font-sans / --font-mono:
+ * those are Tailwind's own theme tokens, and pointing one at itself silently
+ * breaks the family.
  */
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
+const sourceCodePro = Source_Code_Pro({
+  variable: "--font-source-code",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE.name} — ${SITE.tagline} IP lookup & geolocation`,
-    template: `%s — ${SITE.name}`,
+    default: `${SITE.name} · ${SITE.tagline} IP lookup & geolocation`,
+    template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
   applicationName: SITE.name,
@@ -58,7 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.tagline} — ${SITE.name}`,
+    title: `${SITE.tagline} · ${SITE.name}`,
     description: SITE.description,
   },
   robots: {
@@ -96,11 +98,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
-  ],
-  colorScheme: "dark light",
+  themeColor: "#fafafa",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -111,19 +110,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
       suppressHydrationWarning
-      className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${openSans.variable} ${sourceCodePro.variable} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://v4.ident.me" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://v6.ident.me" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('ipwiz-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}`,
-          }}
-        />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

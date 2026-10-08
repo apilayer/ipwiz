@@ -20,13 +20,12 @@ export function VpnVerdict({ data }: { data: IPstackResponse }) {
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-bg-elev p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <StatusDot color={flagged ? "warn" : "accent"} />
-            <span className="mono text-sm font-medium">
-              {flagged ? "Anonymizer detected" : "No anonymizer detected"}
+            <span className="label text-sm font-medium">
+              {flagged ? "VPN, proxy or Tor detected" : "No VPN or proxy detected"}
             </span>
           </div>
-          <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
-            threat: <span className={threatColor(threat)}>{threat}</span>
+          <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
+            risk: <span className={threatColor(threat)}>{threat}</span>
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -39,8 +38,8 @@ export function VpnVerdict({ data }: { data: IPstackResponse }) {
           {sec.vpn_service ? <Pill active>VPN: {sec.vpn_service}</Pill> : null}
         </div>
         {sec.anonymizer_status ? (
-          <div className="mono text-xs text-fg-muted">
-            anonymizer_status = {sec.anonymizer_status}
+          <div className="text-xs text-fg-muted">
+            Status: {sec.anonymizer_status}
             {sec.proxy_last_detected ? (
               <span className="text-fg-dim">
                 {" "}
@@ -58,37 +57,19 @@ export function VpnVerdict({ data }: { data: IPstackResponse }) {
     <div className="flex flex-col gap-3 rounded-lg border border-dashed border-border bg-bg-elev p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <StatusDot color={verdict.likelyVpn ? "warn" : "accent"} />
-          <span className="mono text-sm font-medium">
+          <span className="label text-sm font-medium">
             {verdict.likelyVpn
-              ? "Likely VPN / datacenter (heuristic)"
-              : "Looks residential (heuristic)"}
+              ? "Probably a VPN or datacenter"
+              : "Looks like a home connection"}
           </span>
         </div>
-        <span className="mono text-[10px] uppercase tracking-wider text-warn">
-          security module off
-        </span>
       </div>
       <p className="text-xs leading-relaxed text-fg-muted">{verdict.reason}</p>
       <p className="text-[11px] leading-relaxed text-fg-dim">
-        Real VPN/Tor/proxy detection requires the IPstack{" "}
-        <span className="mono">security</span> module (Professional plan+).
-        Append <span className="mono">&amp;security=1</span> to your request
-        once enabled for your key.
+        This is an educated guess based on who owns the address. Confirmed VPN,
+        proxy and Tor detection needs a paid ipstack plan.
       </p>
     </div>
-  );
-}
-
-function StatusDot({ color }: { color: "accent" | "warn" | "danger" }) {
-  const cls =
-    color === "accent"
-      ? "bg-accent"
-      : color === "warn"
-        ? "bg-warn"
-        : "bg-danger";
-  return (
-    <span className={`inline-block h-2 w-2 rounded-full ${cls} pulse-dot`} />
   );
 }
 
@@ -101,7 +82,7 @@ function Pill({
 }) {
   return (
     <span
-      className={`mono rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
+      className={`label rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
         active
           ? "border-warn/40 bg-warn/10 text-warn"
           : "border-border bg-bg-elev-2 text-fg-dim"
@@ -119,6 +100,6 @@ function threatColor(level: string) {
     case "medium":
       return "text-warn";
     default:
-      return "text-accent";
+      return "text-ok";
   }
 }

@@ -21,13 +21,11 @@ export const TILE_ATTRIBUTION =
 /** OSM's standard tiles stop at 19; asking for more just 404s. */
 export const TILE_MAX_ZOOM = 19;
 
-/** The basemap ships in one light style, so dark mode inverts it. */
-export const TILE_NEEDS_INVERT = !process.env.NEXT_PUBLIC_TILE_URL;
-
-/** Applied to Leaflet's tile pane so one basemap can serve both themes. */
-export const tileFilter = (theme: "dark" | "light") => {
-  if (!TILE_NEEDS_INVERT) return "";
-  return theme === "dark"
-    ? "invert(1) hue-rotate(185deg) saturate(0.4) brightness(0.76) contrast(1.1)"
-    : "saturate(0.6) contrast(0.96)";
-};
+/**
+ * Applied to Leaflet's tile pane to settle OSM's default palette down so the
+ * markers stay the loudest thing on the map. A custom NEXT_PUBLIC_TILE_URL is
+ * assumed to be styled already and is left alone.
+ */
+export const TILE_FILTER = process.env.NEXT_PUBLIC_TILE_URL
+  ? ""
+  : "saturate(0.6) contrast(0.96)";

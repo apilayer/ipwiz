@@ -87,7 +87,7 @@ export function GrabButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mono inline-flex h-10 items-center gap-2 rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25"
+        className="label inline-flex h-10 items-center gap-2 rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25"
       >
         <LinkIcon />
         grab ipinfo
@@ -100,17 +100,17 @@ export function GrabButton() {
             if (e.target === e.currentTarget) reset();
           }}
         >
-          <div className="w-full max-w-md rounded-xl border border-border bg-bg-elev shadow-2xl">
+          <div className="w-full max-w-md rounded-xl border border-border bg-bg-elev">
             <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
-                <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+                <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
                   {created ? "link ready" : "new grab"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={reset}
-                className="mono text-sm text-fg-dim transition hover:text-fg"
+                className="label text-sm text-fg-dim transition hover:text-fg"
                 aria-label="Close"
               >
                 ✕
@@ -120,7 +120,7 @@ export function GrabButton() {
             {!created ? (
               <form onSubmit={submit} className="flex flex-col gap-4 p-5">
                 <div className="flex flex-col gap-1.5">
-                  <label className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+                  <label className="label text-[10px] uppercase tracking-wider text-fg-dim">
                     destination url
                   </label>
                   <input
@@ -129,7 +129,7 @@ export function GrabButton() {
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     placeholder="https://example.com/page"
-                    className="mono h-10 rounded-md border border-border bg-bg px-3 text-sm text-fg placeholder:text-fg-dim focus:border-accent focus:outline-none"
+                    className="label h-10 rounded-md border border-border bg-bg px-3 text-sm text-fg placeholder:text-fg-dim focus:border-accent focus:outline-none"
                     spellCheck={false}
                     autoComplete="off"
                     required
@@ -139,7 +139,7 @@ export function GrabButton() {
                   </span>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+                  <label className="label text-[10px] uppercase tracking-wider text-fg-dim">
                     label <span className="text-fg-dim/70">(optional)</span>
                   </label>
                   <input
@@ -147,13 +147,13 @@ export function GrabButton() {
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
                     placeholder="my-test-link"
-                    className="mono h-10 rounded-md border border-border bg-bg px-3 text-sm text-fg placeholder:text-fg-dim focus:border-accent focus:outline-none"
+                    className="label h-10 rounded-md border border-border bg-bg px-3 text-sm text-fg placeholder:text-fg-dim focus:border-accent focus:outline-none"
                     spellCheck={false}
                     autoComplete="off"
                   />
                 </div>
                 {error ? (
-                  <div className="mono rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">
+                  <div className="label rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">
                     {error}
                   </div>
                 ) : null}
@@ -165,7 +165,7 @@ export function GrabButton() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mono h-9 rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25 disabled:opacity-50"
+                    className="label h-9 rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25 disabled:opacity-50"
                   >
                     {loading ? "creating…" : "create"}
                   </button>
@@ -174,14 +174,14 @@ export function GrabButton() {
             ) : (
               <div className="flex flex-col gap-4 p-5">
                 <div className="flex flex-col gap-1.5">
-                  <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+                  <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
                     share this
                   </span>
-                  <code className="mono break-all rounded-md border border-border bg-bg-elev-2 px-3 py-2 text-xs text-fg">
+                  <code className="code break-all rounded-md border border-border bg-bg-elev-2 px-3 py-2 text-xs text-fg">
                     {created.shortUrl ?? created.fullUrl}
                   </code>
                   {created.shortUrl ? (
-                    <span className="mono text-[11px] text-fg-dim">
+                    <span className="label text-[11px] text-fg-dim">
                       full:{" "}
                       <span className="break-all text-fg-muted">
                         {created.fullUrl}
@@ -189,7 +189,7 @@ export function GrabButton() {
                     </span>
                   ) : (
                     <span className="text-[11px] text-warn">
-                      link shortener unavailable right now — the full URL still
+                      Link shortener is down right now. The full URL still
                       works.
                     </span>
                   )}
@@ -198,13 +198,13 @@ export function GrabButton() {
                   <button
                     type="button"
                     onClick={copyShare}
-                    className="mono h-9 rounded-md border border-accent/40 bg-accent/15 px-3 text-xs font-medium text-accent transition hover:bg-accent/25"
+                    className="label h-9 rounded-md border border-accent/40 bg-accent/15 px-3 text-xs font-medium text-accent transition hover:bg-accent/25"
                   >
                     {copied ? "copied ✓" : "copy"}
                   </button>
                   <Link
                     href={`/grabs/${created.code}`}
-                    className="mono inline-flex h-9 items-center rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
+                    className="label inline-flex h-9 items-center rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
                     onClick={reset}
                   >
                     watch clicks live →
@@ -212,7 +212,7 @@ export function GrabButton() {
                   <button
                     type="button"
                     onClick={reset}
-                    className="mono ml-auto h-9 rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
+                    className="label ml-auto h-9 rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
                   >
                     done
                   </button>

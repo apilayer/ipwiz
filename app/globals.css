@@ -1,30 +1,8 @@
 @import "tailwindcss";
 
-/* Drive the `dark:` variant off the app's theme toggle (data-theme),
-   not the OS prefers-color-scheme, so logos/banner stay in sync. */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-:root,
-[data-theme="dark"] {
-  --bg: #0a0a0b;
-  --bg-elev: #111113;
-  --bg-elev-2: #17171a;
-  --border: #27272a;
-  --border-strong: #3f3f46;
-  --fg: #ededed;
-  --fg-muted: #a1a1aa;
-  --fg-dim: #71717a;
-  --accent: #3b82f6;
-  --accent-dim: #1d4ed8;
-  --danger: #f43f5e;
-  --warn: #f59e0b;
-  --info: #38bdf8;
-  --glow-a: rgba(59, 130, 246, 0.08);
-  --glow-b: rgba(29, 78, 216, 0.06);
-  --grid-line: rgba(255, 255, 255, 0.03);
-}
-
-[data-theme="light"] {
+/* One palette. ipstack's orange drives action and brand; type and surfaces sit
+   on a neutral ramp. There is no dark variant — the app ships light only. */
+:root {
   --bg: #fafafa;
   --bg-elev: #ffffff;
   --bg-elev-2: #f4f4f5;
@@ -33,13 +11,14 @@
   --fg: #18181b;
   --fg-muted: #52525b;
   --fg-dim: #71717a;
-  --accent: #2563eb;
-  --accent-dim: #1d4ed8;
-  --danger: #e11d48;
-  --warn: #d97706;
-  --info: #0284c7;
-  --glow-a: rgba(37, 99, 235, 0.06);
-  --glow-b: rgba(29, 78, 216, 0.04);
+  --accent: #ed661d;
+  --accent-dim: #c9540f;
+  --ok: #17865c;
+  --danger: #d92d4b;
+  --warn: #b26a00;
+  --info: #2056d4;
+  --glow-a: rgba(237, 102, 29, 0.06);
+  --glow-b: rgba(104, 129, 169, 0.05);
   --grid-line: rgba(0, 0, 0, 0.04);
 }
 
@@ -57,8 +36,9 @@
   --color-danger: var(--danger);
   --color-warn: var(--warn);
   --color-info: var(--info);
-  --font-sans: var(--font-plex-sans);
-  --font-mono: var(--font-plex-mono);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-open-sans);
+  --font-mono: var(--font-source-code);
 }
 
 html,
@@ -68,26 +48,27 @@ body {
 }
 
 body {
-  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  /* Plex sets a touch loose by default; tightening reads more composed. */
-  letter-spacing: -0.004em;
+  font-family: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
   background-image:
     radial-gradient(circle at 0% 0%, var(--glow-a), transparent 55%),
     radial-gradient(circle at 100% 0%, var(--glow-b), transparent 45%);
   background-attachment: fixed;
 }
 
-.mono {
-  font-family: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo,
-    monospace;
-  letter-spacing: 0;
+/* UI labels. These used to be set in the mono face, which made ordinary
+   visitors squint at the parts of the page they actually read. ipstack.com is
+   sans throughout, so these now just carry the small, wide-tracked label look
+   and the code face is reserved for `.code`. */
+.label {
+  letter-spacing: 0.055em;
+  font-feature-settings: "tnum" 1;
 }
 
-.grid-bg {
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
+/* The real code face: raw JSON, request URLs, headers, generated link codes. */
+.code {
+  font-family: var(--font-source-code), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+  letter-spacing: 0;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -100,19 +81,6 @@ body {
 }
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
-}
-
-@keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
-}
-.pulse-dot {
-  animation: pulse-dot 1.6s ease-in-out infinite;
 }
 
 @keyframes flash-row {
@@ -132,13 +100,12 @@ body {
   background: var(--bg-elev) !important;
   border: 1px solid var(--border) !important;
   color: var(--fg) !important;
-  font-family: var(--font-plex-mono), ui-monospace, monospace !important;
+  font-family: var(--font-source-code), ui-monospace, monospace !important;
   font-size: 10px !important;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 3px 8px !important;
   border-radius: 6px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
 }
 
 .geo-map-tooltip::before {

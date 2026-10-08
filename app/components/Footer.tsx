@@ -9,9 +9,13 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: [
-      { label: "Live lookup", href: "/" },
-      { label: "My grabs", href: "/grabs" },
-      { label: "Inspect any IP", href: "/" },
+      { label: "What is my IP", href: "/" },
+      { label: "Link Grabber", href: "/link-grabber" },
+      {
+        label: "ipstack MCP server",
+        href: "https://ipstack.com/mcp/",
+        external: true,
+      },
     ],
   },
   {
@@ -66,11 +70,11 @@ export function Footer() {
             className="flex items-center gap-2 text-fg transition hover:opacity-80"
           >
             <Mark />
-            <span className="mono text-sm font-semibold tracking-tight">IPWiz</span>
+            <span className="label text-sm font-semibold tracking-tight">IPWiz</span>
           </Link>
           <p className="max-w-xs text-xs leading-relaxed text-fg-muted">
-            Check your IP address, location, ISP, and VPN or proxy status — or
-            look up any address with real-time geolocation, powered by ipstack.
+            Check your IP address, location, ISP, and VPN or proxy status, or
+            look up any address with real-time geolocation. Powered by ipstack.
           </p>
           <a
             href="https://apilayer.com/"
@@ -78,13 +82,13 @@ export function Footer() {
             rel="noreferrer noopener"
             className="mt-1 inline-flex w-fit items-center gap-2 text-fg-dim transition hover:opacity-80"
           >
-            <span className="mono text-[10px] uppercase tracking-wider">Powered by</span>
+            <span className="label text-[10px] uppercase tracking-wider">Powered by</span>
             <Image
               src="/apilayer-logo.png"
               alt="APILayer"
               width={80}
               height={16}
-              className="h-3.5 w-auto dark:brightness-0 dark:invert"
+              className="h-3.5 w-auto"
             />
           </a>
         </div>
@@ -92,7 +96,7 @@ export function Footer() {
         {/* Link columns */}
         {COLUMNS.map((col) => (
           <div key={col.title} className="flex flex-col gap-3">
-            <h3 className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+            <h3 className="label text-[10px] uppercase tracking-wider text-fg-dim">
               {col.title}
             </h3>
             <ul className="flex flex-col gap-2">
@@ -124,8 +128,8 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div className="mt-8 flex flex-col gap-2 border-t border-border py-5 text-xs text-fg-dim sm:flex-row sm:items-center sm:justify-between">
-        <span className="mono">© {YEAR} IPWiz · ipstack by APILayer</span>
-        <span className="mono">
+        <span>© {YEAR} IPWiz · ipstack by APILayer</span>
+        <span>
           
         </span>
       </div>

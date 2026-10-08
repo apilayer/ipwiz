@@ -88,20 +88,20 @@ export function GrabDetail({
         <section className="overflow-hidden rounded-xl border border-border bg-bg-elev">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+              <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
                 clicks
               </span>
-              <span className="mono text-xs text-fg-muted">
+              <span className="label text-xs text-fg-muted">
                 {clicks.length} captured
               </span>
             </div>
-            <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+            <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
               auto-refresh
             </span>
           </div>
           {clicks.length === 0 ? (
             <div className="p-8 text-center text-sm text-fg-muted">
-              no clicks yet — share the link above and watch this fill up in
+              No clicks yet. Share the link above and watch this fill up in
               real time.
             </div>
           ) : (
@@ -118,14 +118,14 @@ export function GrabDetail({
                       } ${flashIds.has(c.id) ? "animate-flash" : ""}`}
                     >
                       <div className="flex min-w-0 flex-col">
-                        <span className="mono truncate text-fg">{c.ip}</span>
+                        <span className="code truncate text-fg">{c.ip}</span>
                         <span className="truncate text-xs text-fg-muted">
                           {locationLabel(c.ipstack) ?? uaShort(c.userAgent) ?? "—"}
                         </span>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span
-                          className={`mono rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
+                          className={`label rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
                             c.continued
                               ? "border-accent/40 bg-accent/10 text-accent"
                               : "border-warn/40 bg-warn/10 text-warn"
@@ -133,7 +133,7 @@ export function GrabDetail({
                         >
                           {c.continued ? "continued" : "bounced"}
                         </span>
-                        <span className="mono text-[10px] text-fg-dim">
+                        <span className="label text-[10px] text-fg-dim">
                           {relativeTime(c.capturedAt)}
                         </span>
                       </div>
@@ -170,7 +170,7 @@ function ShareCard({
   const fullUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/g/${code}`;
   return (
     <section className="rounded-xl border border-border bg-bg-elev p-5">
-      <div className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+      <div className="label text-[10px] uppercase tracking-wider text-fg-dim">
         share this link
       </div>
       <div className="mt-3 flex flex-col gap-2">
@@ -191,7 +191,7 @@ function ShareCard({
       </div>
       <p className="mt-4 text-xs text-fg-muted">
         Destination after capture:{" "}
-        <span className="mono text-fg">{destinationUrl}</span>
+        <span className="code text-fg">{destinationUrl}</span>
       </p>
     </section>
   );
@@ -210,16 +210,16 @@ function Row({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="mono w-16 shrink-0 text-[10px] uppercase tracking-wider text-fg-dim">
+      <span className="label w-16 shrink-0 text-[10px] uppercase tracking-wider text-fg-dim">
         {label}
       </span>
-      <code className="mono flex-1 truncate rounded-md border border-border bg-bg-elev-2 px-2 py-1.5 text-xs text-fg">
+      <code className="code flex-1 truncate rounded-md border border-border bg-bg-elev-2 px-2 py-1.5 text-xs text-fg">
         {value}
       </code>
       <button
         type="button"
         onClick={onCopy}
-        className="mono h-8 rounded-md border border-border bg-bg-elev-2 px-2 text-[11px] text-fg-muted transition hover:text-fg"
+        className="label h-8 rounded-md border border-border bg-bg-elev-2 px-2 text-[11px] text-fg-muted transition hover:text-fg"
       >
         {copied ? "copied" : "copy"}
       </button>
@@ -241,15 +241,15 @@ function ClickDetail({ click }: { click: ClickRow | null }) {
     <section className="flex flex-col gap-4 overflow-hidden rounded-xl border border-border bg-bg-elev">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
-          <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+          <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
             click detail
           </span>
-          <span className="mono text-xs text-fg-muted">
+          <span className="label text-xs text-fg-muted">
             {new Date(click.capturedAt * 1000).toLocaleString()}
           </span>
         </div>
         <span
-          className={`mono rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
+          className={`label rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
             click.continued
               ? "border-accent/40 bg-accent/10 text-accent"
               : "border-warn/40 bg-warn/10 text-warn"
@@ -293,10 +293,10 @@ function ClickDetail({ click }: { click: ClickRow | null }) {
       </div>
 
       <details className="border-t border-border px-5 py-3">
-        <summary className="mono cursor-pointer text-[10px] uppercase tracking-wider text-fg-dim">
+        <summary className="label cursor-pointer text-[10px] uppercase tracking-wider text-fg-dim">
           raw ipstack json
         </summary>
-        <pre className="mono mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border bg-bg-elev-2 p-3 text-[11px] leading-relaxed text-fg scrollbar-thin">
+        <pre className="code mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md border border-border bg-bg-elev-2 p-3 text-[11px] leading-relaxed text-fg scrollbar-thin">
 {JSON.stringify(click.ipstack, null, 2)}
         </pre>
       </details>
@@ -313,7 +313,7 @@ function Group({
 }) {
   return (
     <div>
-      <div className="mono mb-1 text-[10px] uppercase tracking-wider text-fg-dim">
+      <div className="label mb-1 text-[10px] uppercase tracking-wider text-fg-dim">
         {label}
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 border-l border-border pl-3">
@@ -333,7 +333,7 @@ function Kv({
   wide?: boolean;
 }) {
   return (
-    <div className={`mono flex gap-3 text-xs ${wide ? "col-span-2" : ""}`}>
+    <div className={`label flex gap-3 text-xs ${wide ? "col-span-2" : ""}`}>
       <span className="w-24 shrink-0 text-info">{k}</span>
       <span className="break-all text-fg">
         {v === undefined || v === null || v === "" ? (

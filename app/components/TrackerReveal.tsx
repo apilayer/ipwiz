@@ -29,26 +29,26 @@ export function TrackerReveal({
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 px-4 py-8 md:px-6">
       <div className="rounded-xl border border-warn/30 bg-warn/5 p-5">
-        <div className="mono text-[10px] uppercase tracking-wider text-warn">
+        <div className="label text-[10px] uppercase tracking-wider text-warn">
           transparency notice
         </div>
-        <h1 className="mt-2 text-xl font-semibold text-fg">
+        <h1 className="mt-2 text-[1.75rem] font-semibold leading-[1.2] text-fg md:text-[2.25rem] md:leading-[2.75rem]">
           You clicked an IPWiz tracking link.
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-fg-muted">
-          Below is exactly what was captured about you and sent to whoever created
-          this link. Nothing is hidden. This is a demo of how any link redirector
-          can profile visitors — share your takeaways, be careful what you click.
+          Below is exactly what was captured about you and sent to whoever
+          created this link. Nothing is hidden. Any link redirector can do this
+          much, which is worth remembering next time you click one.
         </p>
       </div>
 
       <section className="overflow-hidden rounded-xl border border-border bg-bg-elev">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+          <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
             what was logged
           </span>
           {grabLabel ? (
-            <span className="mono text-xs text-fg-muted">
+            <span className="label text-xs text-fg-muted">
               label: {grabLabel}
             </span>
           ) : null}
@@ -57,10 +57,10 @@ export function TrackerReveal({
         <div className="grid gap-6 p-5 md:grid-cols-2">
           <div className="flex flex-col gap-3">
             <div>
-              <div className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+              <div className="label text-[10px] uppercase tracking-wider text-fg-dim">
                 your ip
               </div>
-              <div className="mono mt-1 text-2xl text-fg">
+              <div className="label mt-1 text-2xl text-fg">
                 {ipstack?.ip ?? "—"}
               </div>
             </div>
@@ -98,24 +98,24 @@ export function TrackerReveal({
         <p className="text-sm text-fg-muted">
           The creator of this link asked to send you to:
         </p>
-        <p className="mono mt-2 break-all text-sm text-fg">
+        <p className="code mt-2 break-all text-sm text-fg">
           {destinationUrl}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a
             href={continueHref}
-            className="mono inline-flex h-10 items-center rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25"
+            className="label inline-flex h-10 items-center rounded-md border border-accent/40 bg-accent/15 px-4 text-sm font-medium text-accent transition hover:bg-accent/25"
           >
             continue to destination →
           </a>
           <a
             href="/"
-            className="mono inline-flex h-10 items-center rounded-md border border-border bg-bg-elev-2 px-4 text-sm text-fg-muted transition hover:text-fg"
+            className="label inline-flex h-10 items-center rounded-md border border-border bg-bg-elev-2 px-4 text-sm text-fg-muted transition hover:text-fg"
           >
             go to IPWiz instead
           </a>
         </div>
-        <p className="mono mt-4 text-[11px] text-fg-dim">
+        <p className="label mt-4 text-[11px] text-fg-dim">
           continue click-id = {clickId}
         </p>
       </section>
@@ -126,10 +126,10 @@ export function TrackerReveal({
 function Kv({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+      <span className="label text-[10px] uppercase tracking-wider text-fg-dim">
         {label}
       </span>
-      <span className="mono break-words text-xs text-fg">
+      <span className="label break-words text-xs text-fg">
         {value ?? <span className="text-fg-dim">—</span>}
       </span>
     </div>

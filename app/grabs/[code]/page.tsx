@@ -45,13 +45,13 @@ export default async function GrabDetailPage(
   return (
     <>
       <Header />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-6 md:px-6 md:py-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-5 px-4 py-6 md:px-6 md:py-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="mono text-[10px] uppercase tracking-wider text-fg-dim">
+            <div className="label text-[10px] uppercase tracking-wider text-fg-dim">
               grab
             </div>
-            <h1 className="mono text-xl text-fg">
+            <h1 className="text-[1.5rem] font-semibold leading-[1.4] text-fg md:text-[2.25rem] md:leading-[2.75rem]">
               {grab.label ? (
                 <span>
                   {grab.label}{" "}
@@ -65,7 +65,7 @@ export default async function GrabDetailPage(
           <div className="flex gap-2">
             <Link
               href="/grabs"
-              className="mono inline-flex h-9 items-center rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
+              className="label inline-flex h-9 items-center rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
             >
               ← all grabs
             </Link>

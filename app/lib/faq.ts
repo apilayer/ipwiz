@@ -47,4 +47,34 @@ export const FAQ_DATA: IFaqItem[] = [
     answer:
       "An IP geolocation API such as IPstack can be used for a wide range of applications, including content localization, location-based personalization, analytics, fraud prevention, security, traffic analysis, currency selection, and identifying the approximate location of website visitors. Developers can use IPstack to integrate these capabilities directly into their applications through an API.",
   },
+  {
+    id: "faq-8",
+    question: "What is the difference between IPv4 and IPv6?",
+    answer:
+      "IPv4 addresses are 32-bit and written as four numbers separated by dots, such as 192.0.2.1. The internet has run out of unallocated IPv4 space, so IPv6 was introduced: 128-bit addresses written as eight groups of hexadecimal digits, such as 2001:db8::1. Many connections now have both, which is called dual-stack. This page shows your IPv4 address first because that is the one most people mean when they ask for their IP, and shows your IPv6 address beneath it when your network has one. If the IPv6 row is empty, your network is IPv4-only. That is the right answer, not a failure.",
+  },
+  {
+    id: "faq-9",
+    question: "Why does my IP address change?",
+    answer:
+      "Most home and mobile connections get a dynamic IP address, which the provider reassigns from a pool whenever your router reconnects, your lease expires, or you move between networks. Mobile networks change it especially often because traffic is routed through carrier-grade NAT. A static IP, which stays the same, is normally a paid business option. Connecting through a VPN or proxy also changes the address this page sees, because the page sees the exit server rather than your connection.",
+  },
+  {
+    id: "faq-10",
+    question: "How accurate is IP geolocation?",
+    answer:
+      "It is approximate, and it is never a street address. What you get is the point where your provider routes traffic. That is usually right about the country and often right about the city or region, but on mobile networks, corporate VPNs and datacenter connections it can land in a different city altogether. Use it for things like picking a currency or language, or scoring fraud risk. Do not use it to work out where someone physically is.",
+  },
+  {
+    id: "faq-11",
+    question: "Can I hide my IP address?",
+    answer:
+      "You cannot remove it. Every site you connect to has to see some address in order to send a reply. You can replace what they see by routing through a VPN, a proxy or Tor, in which case sites see the exit server's address and location instead of yours. This page reports whether the address it sees carries proxy, Tor or hosting signals, so you can confirm a VPN is actually taking effect.",
+  },
+  {
+    id: "faq-12",
+    question: "Can I use ipstack with an AI assistant or MCP client?",
+    answer:
+      "Yes. The ipstack MCP (Model Context Protocol) server lets a coding assistant call ipstack directly as a tool, with no SDK and no hand-written API requests. It serves the same data this page uses: city-level geolocation for IPv4 and IPv6, ASN and connection details, timezone, currency, and threat intelligence covering proxies, VPNs and Tor. It handles up to 50 addresses in a single call. Point your MCP client at https://mcp.apilayer.com/mcp and authenticate with an Authorization: Bearer header carrying your APILayer token. It works with Claude Desktop, Cursor, VS Code Copilot, Windsurf and Cline out of the box; setup details are at https://ipstack.com/mcp/.",
+  },
 ];

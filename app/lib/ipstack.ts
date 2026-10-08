@@ -115,24 +115,24 @@ export function heuristicVpnVerdict(data: IPstackResponse): {
   const blob = `${isp} ${carrier} ${orgType}`;
 
   if (!blob.trim()) {
-    return { likelyVpn: false, reason: "No connection data to analyze." };
+    return { likelyVpn: false, reason: "This plan does not include network details, so there is nothing to judge." };
   }
 
   const match = HOSTING_KEYWORDS.find((k) => blob.includes(k));
   if (match) {
     return {
       likelyVpn: true,
-      reason: `ISP/carrier matches known hosting provider: "${match}". Datacenter IPs are commonly used by VPNs and proxies.`,
+      reason: `This address belongs to ${match}, which runs servers rather than home connections. VPNs and proxies usually sit on addresses like this one.`,
     };
   }
   if (data.connection?.home === false) {
     return {
       likelyVpn: true,
-      reason: "Connection is flagged as non-residential.",
+      reason: "The provider lists this as a business or hosting connection rather than a home one.",
     };
   }
   return {
     likelyVpn: false,
-    reason: "ISP appears to be a consumer/residential network.",
+    reason: "The provider looks like an ordinary home or mobile internet network.",
   };
 }

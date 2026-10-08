@@ -1,21 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import type { LookupResult } from "@/app/lib/ipstack";
+import {
+  describeIPstackError,
+  describeTransportError,
+  type FriendlyError,
+} from "@/app/lib/errors";
 import { IPCard } from "./IPCard";
-import { LookupBar } from "./LookupBar";
 import { TracePanel } from "./TracePanel";
-import { GeoCompare } from "./GeoCompare";
-import { GrabButton } from "./GrabButton";
+import { GeoLocation } from "./GeoLocation";
 import { ApiBanner } from "./ApiBanner";
+import { AboutSection } from "./AboutSection";
+import { ApiSuiteSection } from "./ApiSuiteSection";
 import { FaqSection } from "./FaqSection";
 import { Footer } from "./Footer";
 
 export function Dashboard() {
   const [result, setResult] = useState<LookupResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FriendlyError | null>(null);
 
   const lookup = useCallback(async (ip: string | null) => {
     setLoading(true);
@@ -25,20 +29,19 @@ export function Dashboard() {
       const res = await fetch(`/api/ipstack${qs}`, { cache: "no-store" });
       const body = (await res.json()) as LookupResult | { error: string };
       if (!res.ok || "error" in body) {
-        setError("error" in body ? body.error : `HTTP ${res.status}`);
+        setError(describeTransportError(res.status));
         setResult(null);
         return;
       }
-      if (body.response.body.error) {
-        setError(
-          `IPstack: ${body.response.body.error.info} (code ${body.response.body.error.code})`
-        );
+      const apiError = body.response.body.error;
+      if (apiError) {
+        setError(describeIPstackError(apiError.code, apiError.info));
         setResult(body);
         return;
       }
       setResult(body);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+    } catch {
+      setError(describeTransportError());
       setResult(null);
     } finally {
       setLoading(false);
@@ -50,39 +53,24 @@ export function Dashboard() {
   }, [lookup]);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-6 md:px-6 md:py-8">
-      <div className="flex items-center justify-end gap-2">
-        <Link
-          href="/grabs"
-          className="mono inline-flex h-10 items-center rounded-md border border-border bg-bg-elev-2 px-3 text-xs text-fg-muted transition hover:text-fg"
-        >
-          my grabs
-        </Link>
-        <GrabButton />
-      </div>
-
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-5 px-4 py-6 md:px-6 md:py-8">
       {/* The question people arrived with, answered above the fold. The h1 is
           here rather than inside the card so the card can stay reusable. */}
       <header>
-        <h1 className="text-2xl font-bold tracking-tight text-fg md:text-3xl">
+        <h1 className="text-[2rem] font-semibold leading-[1.24] text-fg md:text-[2.8125rem] md:leading-[3.5rem]">
           What is my IP address?
         </h1>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-fg-muted">
-          This is the public IP address your connection is presenting right now,
-          with the location, network and privacy signals attached to it. Both your
-          IPv4 and IPv6 addresses are shown when your network has each.
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-fg-muted md:text-[1.1875rem] md:leading-[1.7]">
+          Here is the public IP address your connection is using right now,
+          along with the location, network and privacy details attached to it.
+          If your network has both an IPv4 and an IPv6 address, you will see
+          both.
         </p>
       </header>
 
-      <IPCard result={result} loading={loading} />
+      <IPCard result={result} loading={loading} onLookup={lookup} />
 
       <ApiBanner />
-
-      <LookupBar
-        onLookup={lookup}
-        loading={loading}
-        currentTarget={result?.target}
-      />
 
       <div className="grid gap-5 md:grid-cols-[1.1fr_1fr]">
         {/* Wrapper lets the right column drive the row height; the panel is
@@ -93,10 +81,14 @@ export function Dashboard() {
             <TracePanel result={result} loading={loading} error={error} />
           </div>
         </div>
-        <GeoCompare data={result?.response.body ?? null} />
+        <GeoLocation data={result?.response.body ?? null} />
       </div>
 
+      <AboutSection />
+
       <FaqSection />
+
+      <ApiSuiteSection />
 
       <Footer />
     </main>
