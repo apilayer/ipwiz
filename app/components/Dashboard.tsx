@@ -61,9 +61,22 @@ export function Dashboard() {
         <GrabButton />
       </div>
 
-      <ApiBanner />
+      {/* The question people arrived with, answered above the fold. The h1 is
+          here rather than inside the card so the card can stay reusable. */}
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-fg md:text-3xl">
+          What is my IP address?
+        </h1>
+        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-fg-muted">
+          This is the public IP address your connection is presenting right now,
+          with the location, network and privacy signals attached to it. Both your
+          IPv4 and IPv6 addresses are shown when your network has each.
+        </p>
+      </header>
 
       <IPCard result={result} loading={loading} />
+
+      <ApiBanner />
 
       <LookupBar
         onLookup={lookup}

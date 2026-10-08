@@ -1,0 +1,52 @@
+# IPWiz
+
+> A free tool that shows your public IPv4 and IPv6 address along with the
+> location, network and privacy signals attached to them. Powered by the
+> ipstack API from APILayer.
+
+## What it answers
+
+- **What is my IP address?** Your public IP is detected from your connection
+  automatically. No sign-up and nothing to install.
+- **What is my IPv4 address?** Shown first on the page. Most people mean this
+  one when they ask for "my IP".
+- **What is my IPv6 address?** Shown beneath the IPv4 address when your network
+  has one. Many connections are IPv4-only and will show nothing here, which is
+  the correct answer rather than an error.
+- **Where is my IP located?** City, region, country, timezone and approximate
+  coordinates registered to the address. IP geolocation is approximate: it
+  resolves to where your provider routes traffic, which can be a different city
+  and is never a street address.
+- **Who is my ISP?** The provider and ASN that owns the address.
+- **Am I behind a VPN or proxy?** The tool reports proxy, Tor and hosting
+  signals where the ipstack plan provides them, and falls back to judging the
+  ISP name when it does not.
+- **Can I look up a different IP?** Yes. Any IPv4 or IPv6 address can be
+  entered directly.
+
+## How your address is detected
+
+The server reads the `x-forwarded-for` header, which carries the single address
+your browser connected over. Because that is one connection, it can only reveal
+one family. To report both, the page additionally makes two requests that can
+only travel over IPv4 and IPv6 respectively; whichever succeeds reveals that
+family's address. A family that fails to respond means your network does not
+have an address of that type.
+
+## Accuracy and limits
+
+- IP geolocation is approximate and is not a physical address.
+- Mobile networks, corporate VPNs and datacenter connections frequently resolve
+  to a different city or country than the user.
+- A clean VPN or proxy verdict is not a guarantee; it reflects what the data
+  source reports.
+
+## Data source
+
+ipstack (https://ipstack.com), an APILayer product. Free tier available.
+
+## Links
+
+- Tool: https://ipwiz.apilayer.com
+- ipstack API: https://ipstack.com
+- APILayer: https://apilayer.com

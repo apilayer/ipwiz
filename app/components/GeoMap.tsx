@@ -14,10 +14,12 @@ interface GeoMapProps {
   browserGeo: MarkerPoint | null;
 }
 
-const TILE_URL = {
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-  light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-} as const;
+import {
+  TILE_ATTRIBUTION,
+  TILE_MAX_ZOOM,
+  TILE_URL,
+  tileFilter,
+} from "@/app/lib/tiles";
 
 function currentTheme(): "dark" | "light" {
   if (typeof document === "undefined") return "dark";
@@ -31,11 +33,21 @@ export function GeoMap({ ipGeo, browserGeo }: GeoMapProps) {
   const layersRef = useRef<L.Layer[]>([]);
   const [ready, setReady] = useState(false);
 
+  // Dark and light are the same tiles under a filter, so the pane carries the
+  // look rather than the layer. Defined once, used by setup and the observer.
+  // Takes the map explicitly because setup calls this before `mapRef.current`
+  // is assigned; relying on the ref there left the first paint unfiltered until
+  // the user happened to toggle the theme.
+  const applyTheme = (map?: L.Map | null) => {
+    const pane = (map ?? mapRef.current)?.getPane("tilePane");
+    if (pane) pane.style.filter = tileFilter(currentTheme());
+  };
+
   // Keep map tiles in sync with the app theme toggle (data-theme).
   useEffect(() => {
     const target = document.documentElement;
     const observer = new MutationObserver(() => {
-      tileRef.current?.setUrl(TILE_URL[currentTheme()]);
+      applyTheme();
     });
     observer.observe(target, {
       attributes: true,
@@ -73,17 +85,15 @@ export function GeoMap({ ipGeo, browserGeo }: GeoMapProps) {
       }).setView([5.5, -0.2], 3);
 
       // Tile layer from CartoDB, matched to the current theme
-      tileRef.current = L.tileLayer(TILE_URL[currentTheme()], {
-        subdomains: "abcd",
-        maxZoom: 19,
+      tileRef.current = L.tileLayer(TILE_URL, {
+        maxZoom: TILE_MAX_ZOOM,
       }).addTo(map);
+      applyTheme(map);
 
       // Minimal attribution in bottom-right
       L.control
         .attribution({ position: "bottomright", prefix: false })
-        .addAttribution(
-          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:#71717a">OSM</a> &middot; <a href="https://carto.com/" target="_blank" rel="noopener" style="color:#71717a">CARTO</a>'
-        )
+        .addAttribution(TILE_ATTRIBUTION)
         .addTo(map);
 
       // Zoom control bottom-right
