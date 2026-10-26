@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BASE_PATH } from "@/app/lib/basePath";
 import Link from "next/link";
 
 type CreatedGrab = {
@@ -40,7 +41,7 @@ export function GrabButton() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/grabs", {
+      const res = await fetch(`${BASE_PATH}/api/grabs`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({

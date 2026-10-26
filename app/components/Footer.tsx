@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { assetPath } from "@/app/lib/assets";
 import Link from "next/link";
 
 const YEAR = new Date().getFullYear();
@@ -84,7 +85,7 @@ export function Footer() {
           >
             <span className="label text-[10px] uppercase tracking-wider">Powered by</span>
             <Image
-              src="/apilayer-logo.png"
+              src={assetPath("/apilayer-logo.png")}
               alt="APILayer"
               width={80}
               height={16}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { assetPath } from "@/app/lib/assets";
 
 const BROWSE_APIS_URL =
   "https://apilayer.com/products/?utm_source=IPstackHomePage&utm_medium=Referral";
@@ -18,7 +19,7 @@ export function ApiSuiteSection() {
       className="relative isolate overflow-hidden rounded-lg bg-[#2480FC]"
     >
       <Image
-        src="/brand/blue-bg.webp"
+        src={assetPath("/brand/blue-bg.webp")}
         alt=""
         fill
         aria-hidden
@@ -26,7 +27,7 @@ export function ApiSuiteSection() {
         className="-z-10 object-cover object-bottom"
       />
       <Image
-        src="/brand/orange-bg.webp"
+        src={assetPath("/brand/orange-bg.webp")}
         alt=""
         fill
         aria-hidden
@@ -40,7 +41,7 @@ export function ApiSuiteSection() {
           unless dangerouslyAllowSVG is on — and it is already only 103 KB
           gzipped, so there is nothing to optimize. */}
       <Image
-        src="/brand/portals.svg"
+        src={assetPath("/brand/portals.svg")}
         alt=""
         aria-hidden
         width={532}

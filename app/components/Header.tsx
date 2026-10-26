@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { assetPath } from "@/app/lib/assets";
 import Link from "next/link";
 
 export function Header() {
@@ -40,7 +41,7 @@ export function Header() {
             className="flex items-center transition hover:opacity-80"
           >
             <Image
-              src="/apilayer-logo.png"
+              src={assetPath("/apilayer-logo.png")}
               alt="APILayer"
               width={100}
               height={20}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { BASE_PATH } from "@/app/lib/basePath";
 import type { LookupResult } from "@/app/lib/ipstack";
 import {
   describeIPstackError,
@@ -26,7 +27,7 @@ export function Dashboard() {
     setError(null);
     try {
       const qs = ip ? `?ip=${encodeURIComponent(ip)}` : "";
-      const res = await fetch(`/api/ipstack${qs}`, { cache: "no-store" });
+      const res = await fetch(`${BASE_PATH}/api/ipstack${qs}`, { cache: "no-store" });
       const body = (await res.json()) as LookupResult | { error: string };
       if (!res.ok || "error" in body) {
         setError(describeTransportError(res.status));

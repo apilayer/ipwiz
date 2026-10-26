@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BASE_PATH } from "@/app/lib/basePath";
 import type { IPstackResponse } from "@/app/lib/ipstack";
 
 export type ClickRow = {
@@ -37,7 +38,7 @@ export function GrabDetail({
 
   const poll = useCallback(async () => {
     try {
-      const res = await fetch(`/api/grabs/${code}`, { cache: "no-store" });
+      const res = await fetch(`${BASE_PATH}/api/grabs/${code}`, { cache: "no-store" });
       if (!res.ok) return;
       const data = (await res.json()) as { clicks: ClickRow[] };
       setClicks(data.clicks);

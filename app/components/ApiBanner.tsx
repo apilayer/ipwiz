@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { assetPath } from "@/app/lib/assets";
 
 /**
  * Promo banner for the ipstack API (by APILayer). Flat by design: a thin orange
@@ -20,7 +21,7 @@ export function ApiBanner() {
         {/* brand lockup + copy */}
         <div className="flex items-center gap-4">
           <Image
-            src="/brand/ipstack-icon.png"
+            src={assetPath("/brand/ipstack-icon.png")}
             alt=""
             width={44}
             height={44}
@@ -29,7 +30,7 @@ export function ApiBanner() {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2.5">
               <Image
-                src="/brand/ipstack-white.png"
+                src={assetPath("/brand/ipstack-white.png")}
                 alt="ipstack"
                 width={92}
                 height={24}
@@ -37,7 +38,7 @@ export function ApiBanner() {
               />
               <span className="h-3.5 w-px bg-black/15" />
               <Image
-                src="/apilayer-logo.png"
+                src={assetPath("/apilayer-logo.png")}
                 alt="APILayer"
                 width={80}
                 height={16}
@@ -87,7 +88,7 @@ export function ApiBannerCompact() {
 
       <div className="relative z-10 flex min-w-0 items-center gap-2.5">
         <Image
-          src="/brand/ipstack-icon.png"
+          src={assetPath("/brand/ipstack-icon.png")}
           alt=""
           width={24}
           height={24}
@@ -95,7 +96,7 @@ export function ApiBannerCompact() {
         />
         <div className="flex min-w-0 items-center gap-2">
           <Image
-            src="/brand/ipstack-white.png"
+            src={assetPath("/brand/ipstack-white.png")}
             alt="ipstack"
             width={70}
             height={18}
