@@ -1,3 +1,5 @@
+import { BASE_PATH } from "./basePath";
+
 /**
  * Canonical site facts, in one place so metadata, structured data, the sitemap
  * and robots all agree.
@@ -16,13 +18,12 @@ export const SITE = {
   /** Public origin, no trailing slash. */
   origin: (process.env.NEXT_PUBLIC_SITE_ORIGIN || DEFAULT_ORIGIN).replace(/\/$/, ""),
   /**
-   * Public sub-path the page lives at. Intentionally NOT read from
-   * NEXT_PUBLIC_BASE_PATH: that variable moves where Next serves the app, and
-   * is empty in local development. The canonical URL must describe production
-   * either way, or running locally would emit a canonical pointing at the bare
-   * ipstack.com homepage.
+   * Public sub-path the page lives at: the base path the app is built with. It
+   * is empty in local development, so it falls back to the production path
+   * there; otherwise running locally would emit a canonical pointing at the
+   * bare ipstack.com homepage.
    */
-  publicPath: (process.env.NEXT_PUBLIC_SITE_PATH ?? DEFAULT_BASE_PATH).replace(/\/$/, ""),
+  publicPath: BASE_PATH || DEFAULT_BASE_PATH,
   tagline: "What is my IP address?",
   description:
     "See your public IPv4 and IPv6 address instantly, with the city, ISP, ASN, timezone and VPN or proxy status attached to it. Look up any IPv4 or IPv6 address, powered by the ipstack API.",

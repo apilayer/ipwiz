@@ -4,9 +4,10 @@ import { db, schema } from "@/app/lib/db";
 import { newGrabCode, newId } from "@/app/lib/codes";
 import { getOwnerCookie } from "@/app/lib/identity";
 import { shortenUrl } from "@/app/lib/shorten";
+import { BASE_PATH } from "@/app/lib/basePath";
 
 function originFor(request: NextRequest): string {
-  const envOrigin = process.env.PUBLIC_ORIGIN;
+  const envOrigin = process.env.NEXT_PUBLIC_SITE_ORIGIN;
   if (envOrigin) return envOrigin.replace(/\/$/, "");
   const host = request.headers.get("host");
   const proto =
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
   const code = newGrabCode();
   const id = newId();
   const origin = originFor(request);
-  const fullUrl = `${origin}/g/${code}`;
+  const fullUrl = `${origin}${BASE_PATH}/g/${code}`;
   const shortUrl = await shortenUrl(fullUrl);
 
   await db.insert(schema.grabs).values({
